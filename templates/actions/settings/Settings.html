@@ -1,0 +1,78 @@
+{$_class = 'crm-iptelefonsu-wrapper'}
+{$_id = uniqid($_class)}
+<div class="{$_class}" id="{$_id}">
+    <h1>IPTelefon</h1>
+    <div class="fields form">
+        <form method="post">
+            {* PBX URL *}
+            <div class="field">
+                <div class="name">
+                    <label for="iptelefon_crm_iptelefonsu_pbx_url">[`Cloud service address`]</label>
+                </div>
+                <div class="value">
+                    <input id="iptelefon_crm_iptelefonsu_pbx_url" type="text" name="crm_iptelefonsu[pbx_url]" class="input" title="[`Cloud service address`]" value="{$pbx_url|escape}" autocomplete="off">
+                </div>
+            </div>
+
+            {* PBX KEY *}
+            <div class="field">
+                <div class="name">
+                    <label for="iptelefon_crm_iptelefonsu_pbx_key">[`Authorization key`]</label>
+                </div>
+                <div class="value">
+                    <input id="iptelefon_crm_iptelefonsu_pbx_key" type="text" name="crm_iptelefonsu[pbx_key]" class="input" title="[`Authorization key`]" value="{$pbx_key|escape}" autocomplete="off">
+                </div>
+            </div>
+
+            {* Callback url *}
+            <div class="field">
+                <div class="name">[`Call notifications link`]</div>
+                <div class="value">
+                    {if !empty($callback_url)}
+                        <input type="text" readonly="" value="{$callback_url|escape}">
+                    {else}
+                        <span style="color: red;">[`Add settlement for CRM`]</span>
+                    {/if}
+                </div>
+            </div>
+
+            {* CRM KEY *}
+            <div class="field">
+                <div class="name">
+                    <label for="iptelefon_crm_iptelefonsu_crm_key">[`CRM authorization key`]</label>
+                </div>
+                <div class="value">
+                    <input id="iptelefon_crm_iptelefonsu_crm_key" type="text" name="crm_iptelefonsu[crm_key]" class="input" title="[`CRM authorization key`]" value="{$crm_key|escape}" autocomplete="off">
+                </div>
+                <div class="value hint">
+                    <a href="javascript:void(0);" class="inline-link js-generate"><b><i>[`generate`]</i></b></a>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="value">
+                    <div class="crm-iptelefonsu-api-status js-api-status" data-ok="[`API connection established`]" data-bad="[`API connection not established`]"></div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="value submit">
+                    <input type="submit" class="js-save button green" value="[`Save`]">
+                    <span id="plugins-settings-form-status"></span>
+                </div>
+            </div>
+
+            {$wa->csrf()}
+
+        </form>
+    </div>
+
+    <div class="clear-left"></div>
+</div>
+<script>
+    (function ($) {
+        new IptelefonsuSettings({
+            $wrapper: $("#{$_id}")
+        });
+    })(jQuery);
+</script>
