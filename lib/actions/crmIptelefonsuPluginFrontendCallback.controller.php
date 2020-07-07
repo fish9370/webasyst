@@ -88,7 +88,7 @@ class crmIptelefonsuPluginFrontendCallbackController extends waController
         }
     }
 
-    protected function handleNewCall()
+    protected function handleNewCall($history = false)
     {
         if ($this->cb_data['call-type'] === 'OUT') {
             $call_data = array(
@@ -106,7 +106,7 @@ class crmIptelefonsuPluginFrontendCallbackController extends waController
             'plugin_client_number' => $this->cb_data['phone'],
             'plugin_id'            => $this->plugin_id,
             'plugin_call_id'       => $this->cb_data['callid'],
-            'create_datetime'      => date('Y-m-d H:i:s'),
+            'create_datetime'      => ifempty($this->cb_data['calldate'], date('Y-m-d H:i:s')),
             'status_id'            => 'PENDING',
         );
 
@@ -152,7 +152,10 @@ class crmIptelefonsuPluginFrontendCallbackController extends waController
             }
         }
 
-        self::getCallModel()->handleCalls(array($id));
+        if(!$history) {
+            self::getCallModel()->handleCalls(array($id));
+        }
+
         if (waSystemConfig::isDebug()) {
             $this->dumpLog('handleCalls() done');
         }
@@ -184,6 +187,13 @@ class crmIptelefonsuPluginFrontendCallbackController extends waController
     protected function handleHangup()
     {
         $call = self::getCallModel()->getByField(array('plugin_id' => $this->plugin_id, 'plugin_call_id' => $this->cb_data['callid']));
+
+        if(!$call) {
+            $this->handleNewCall(true);
+        }
+
+        $call = self::getCallModel()->getByField(array('plugin_id' => $this->plugin_id, 'plugin_call_id' => $this->cb_data['callid']));
+
         if (!$call) {
             if (waSystemConfig::isDebug()) {
                 $this->dumpLog('Received HANGUP frontend callback for unknown or deleted call');
@@ -200,14 +210,13 @@ class crmIptelefonsuPluginFrontendCallbackController extends waController
         $call_data['finish_datetime'] = date('Y-m-d H:i:s');
         $call_data['duration'] = null;
 
-        if($this->cb_data['transfered'] !== 'false') {
+        if($this->cb_data['transfered']) {
             $call_data['status_id'] = 'REDIRECTED';
         } else {
             switch ($this->cb_data['status']) {
                 case 'ANSWERED':
                     $call_data['status_id'] = 'FINISHED';
-                    //$call_data['duration'] = time() - strtotime($call['create_datetime']);
-                    $call_data['duration'] = $this->cb_data['duration'];
+                    $call_data['duration'] = (int)$this->cb_data['duration'];
                     $this->handleRecord();
                     break;
 
