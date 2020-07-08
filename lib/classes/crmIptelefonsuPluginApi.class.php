@@ -113,6 +113,10 @@ class crmIptelefonsuPluginApi
                 }
             } else {
                 $cm->updateById($call['id'], array('status_id' => 'DROPPED'));
+                if (waSystemConfig::isDebug()) {
+                    echo json_encode($res);
+                    waLog::dump($res, 'crm/plugins/iptelefonsu.log');
+                }
                 return false;
             }
 
