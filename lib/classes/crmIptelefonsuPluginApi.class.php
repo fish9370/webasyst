@@ -101,7 +101,6 @@ class crmIptelefonsuPluginApi
 
         try {
             $res =  $this->getNet()->query($this->o['pbx_url'], $data, waNet::METHOD_POST);
-
             $code = ifempty($res, 'code', 'error');
 
             if($code === 'success') {
@@ -136,6 +135,4 @@ class crmIptelefonsuPluginApi
                 'format'         => 'json',
             ), $params);
     }
-
-
 }

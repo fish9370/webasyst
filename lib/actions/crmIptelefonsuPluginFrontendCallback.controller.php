@@ -189,6 +189,7 @@ class crmIptelefonsuPluginFrontendCallbackController extends waController
         $call = self::getCallModel()->getByField(array('plugin_id' => $this->plugin_id, 'plugin_call_id' => $this->cb_data['callid']));
 
         if(!$call) {
+            // приехал history без начальных эвентов
             $this->handleNewCall(true);
         }
 
@@ -210,7 +211,7 @@ class crmIptelefonsuPluginFrontendCallbackController extends waController
         $call_data['finish_datetime'] = date('Y-m-d H:i:s');
         $call_data['duration'] = null;
 
-        if($this->cb_data['transfered']) {
+        if(!empty($this->cb_data['transfered'])) {
             $call_data['status_id'] = 'REDIRECTED';
         } else {
             switch ($this->cb_data['status']) {
@@ -225,9 +226,9 @@ class crmIptelefonsuPluginFrontendCallbackController extends waController
                     break;
             }
         }
-
         self::getCallModel()->updateById($call['id'], $call_data);
         self::getCallModel()->handleCalls(array($call['id']));
+        $this->deleteOnlyPendingDuplicates($call);
     }
 
     protected function handleRecord()
@@ -255,6 +256,23 @@ class crmIptelefonsuPluginFrontendCallbackController extends waController
 
         self::getCallModel()->updateById($call['id'], $call_data);
         self::getCallModel()->handleCalls(array($call['id']));
+    }
+
+    /**
+     * Удаление лишних звонков, если пришел history для неотвеченных
+     * @param $call
+     */
+    protected function deleteOnlyPendingDuplicates($call)
+    {
+        self::getCallModel()->exec(
+            "DELETE FROM crm_call
+                 WHERE plugin_id = '{$this->plugin_id}'
+                    AND plugin_call_id = ?
+                    AND status_id = 'PENDING'
+                    AND id <> ?",
+            $call['plugin_call_id'],
+            $call['id']
+        );
     }
 
     protected function deletePendingDuplicates($call)

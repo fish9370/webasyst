@@ -2,7 +2,7 @@
 return array(
     'name'                => 'IPtelefon.su',
     'img'                 => 'img/logo.png',
-    'version'             => '1.1',
+    'version'             => '1.2',
     'vendor'              => '1236928',
     'custom_settings_url' => '?plugin=iptelefonsu&module=settings',
     'frontend'            => true,
